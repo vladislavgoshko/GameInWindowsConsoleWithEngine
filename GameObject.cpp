@@ -3,7 +3,7 @@
 #include <sstream>
 #include <Windows.h>
 
-GameObject::GameObject(const std::string& name) : name(name) {}
+GameObject::GameObject(const std::string& name) : name(name), largeData(10000000, 42) {}
 
 GameObject::~GameObject() {
     std::stringstream ss;
@@ -15,8 +15,10 @@ void GameObject::Destroy() {
     if (scene) {
         scene->DestroyObject(this);
     }
+    delete this;
 }
 
-void GameObject::setScene(Scene* scene) {
+void GameObject::SetScene(Scene* scene) {
     this->scene = scene;
 }
+

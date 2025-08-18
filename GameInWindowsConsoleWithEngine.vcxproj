@@ -130,6 +130,7 @@
   <ItemGroup>
     <ClCompile Include="ConsoleEngine.cpp" />
     <ClCompile Include="FPSMeter.cpp" />
+    <ClCompile Include="FrameCreator.cpp" />
     <ClCompile Include="Main.cpp" />
     <ClCompile Include="GameObject.cpp" />
     <ClCompile Include="GameObject.h" />
@@ -143,6 +144,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="ConsoleEngine.h" />
+    <ClInclude Include="FrameCreator.h" />
     <ClInclude Include="IDrawableObject.h" />
     <ClInclude Include="IUpdatable.h" />
     <ClInclude Include="KeyboardInputController.h" />
