@@ -1,6 +1,7 @@
 #ifndef KEYBOARDINPUTCONTROLLER_H
 #define KEYBOARDINPUTCONTROLLER_H
 
+#define _WINSOCKAPI_ // Prevent winsock.h
 #include <Windows.h>
 #include <unordered_map>
 
