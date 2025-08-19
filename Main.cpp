@@ -12,6 +12,13 @@
 #include <fstream>
 #include "FPSMeter.cpp"
 
+inline bool operator==(const COORD& lhs, const COORD& rhs) {
+	return lhs.X == rhs.X && lhs.Y == rhs.Y;
+}
+
+inline bool operator!=(const COORD& lhs, const COORD& rhs) {
+	return !(lhs == rhs);
+}
 
 int main()
 {
@@ -23,7 +30,7 @@ int main()
 	KeyboardInputController inputController;
 
 	std::vector<IDrawableObject*> objects;
-	TestObject obj1({ 5, 5 }, 20, &inputController, &ce);
+	TestObject obj1({ 5, 5 }, 40, &inputController, &ce);
 	objects.push_back(&obj1);
 
 	COORD currentWindowSize = ce.GetWindowSize();
@@ -52,7 +59,6 @@ int main()
 
 		deltaTime = std::chrono::system_clock::now() - frameTimeRegulationTimePoint;
 
-		//WriteText({ 3, 2 }, "MENU", 0, 11, &charInfoArray, currentWindowSize);
 		frameCreator.WriteText({ 3, 2 }, "MENU", 0, 11);
 		frameCreator.WriteText({ 3, 4 }, "Start");
 		//ce.WriteText({ 3, 5 }, "Settings");
@@ -67,7 +73,6 @@ int main()
 			<< " " << ce.IsFullcreen
 			<< " " << fpsMeter.Update()
 			;
-		//WriteText({ 0, 0 }, debugInfo.str(), 0, 15, &charInfoArray, currentWindowSize);
 		frameCreator.WriteText({ 0, 0 }, debugInfo.str(), 0, 15);
 
 		// UPDATE
@@ -86,17 +91,19 @@ int main()
 			frameTimeRegulationTimePoint = std::chrono::system_clock::now();
 
 			for (auto obj : objects) {
-				// Приводим объект к IUpdatable* и вызываем Update
 				if (IUpdatable* updatable = dynamic_cast<IUpdatable*>(obj)) {
 					updatable->FixedUpdate(frameTime);
 				}
 			}
-			//obj1.SetPosition({ (short)((short)fps % 100 + 10), (short)((short)fps % 60 + 2) });
 		}
 
-		//outfile << fps << std::endl; // Запись в файл
+		windowSize = ce.GetWindowSize();
+		COORD frameSize = frameCreator.GetFrameSize();
+		if (windowSize != frameSize) {
+			frameCreator.Resize(windowSize);
+		}
+
 		for (auto& obj : objects) {
-			//DrawObject(*obj, &charInfoArray, currentWindowSize);
 			frameCreator.DrawObject(*obj);
 		}
 		ce.Draw(frameCreator.GetFrame().data());
