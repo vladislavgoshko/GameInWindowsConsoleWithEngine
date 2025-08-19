@@ -25,9 +25,11 @@ void FrameCreator::DrawObject(const IDrawableObject& obj) {
 		for (size_t x = 0; x < texture[y].size(); ++x) {
 			SHORT color = texture[y][x];
 			if (color) {
-				DrawPixel(position.X + static_cast<short>(x),
-					position.Y + static_cast<short>(y),
-					color);
+				auto X = position.X + static_cast<short>(x), Y = position.Y + static_cast<short>(y);
+				if (X >= frameSize.X || Y >= frameSize.Y * 2 || X < 0 || Y < 0) {
+					continue;
+				}
+				DrawPixel(X, Y, color);
 			}
 		}
 	}
@@ -65,9 +67,18 @@ void FrameCreator::ClearFrame() {
 	std::fill(charInfoArray.begin(), charInfoArray.end(), clearChar);
 }
 
+void FrameCreator::Resize(COORD newSize) {
+	charInfoArray.resize(newSize.X * newSize.Y);
+	frameSize = newSize;
+	ClearFrame();
+}
 
 std::vector<CHAR_INFO> FrameCreator::GetFrame() {
 	return charInfoArray;
+}
+
+COORD FrameCreator::GetFrameSize() {
+	return frameSize;
 }
 
 

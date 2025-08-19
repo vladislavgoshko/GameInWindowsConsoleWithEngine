@@ -11,10 +11,12 @@
 class FrameCreator {
 public:
 	FrameCreator(COORD frameSize);
+	void Resize(COORD frameSize);
 	void ClearFrame();
 	void DrawObject(const IDrawableObject& obj);
 	void WriteText(COORD coords, std::string text, int textColor = 0, int bgColor = 15);
 	std::vector<CHAR_INFO> GetFrame();
+	COORD GetFrameSize();
 
 private:
 	void DrawPixel(short X, short Y, SHORT color);
