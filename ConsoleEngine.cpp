@@ -24,7 +24,11 @@ void ConsoleEngine::Draw(const CHAR_INFO* screenArray) {
 
 	rect = { 0, 0, (short)(currentWindowSize.X - 1), (short)(currentWindowSize.Y - 1) };
 
-	WriteConsoleOutput(handleConsole, screenArray, currentWindowSize, { 0, 0 }, &rect);
+	try {
+		WriteConsoleOutput(handleConsole, screenArray, currentWindowSize, { 0, 0 }, &rect);
+	}
+	catch (...) {
+	}
 }
 
 
