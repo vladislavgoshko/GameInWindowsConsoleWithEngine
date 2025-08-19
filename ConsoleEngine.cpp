@@ -21,11 +21,8 @@ ConsoleEngine::ConsoleEngine() {
 
 void ConsoleEngine::Draw(const CHAR_INFO* screenArray) {
 	auto currentWindowSize = GetWindowSize();
-	GetConsoleScreenBufferInfoEx(handleConsole, &info);
 
-	if (currentWindowSize.X != info.dwSize.X || currentWindowSize.Y != info.dwSize.Y) {
-		rect = { 0, 0, (short)(currentWindowSize.X - 1), (short)(currentWindowSize.Y - 1) };
-	}
+	rect = { 0, 0, (short)(currentWindowSize.X - 1), (short)(currentWindowSize.Y - 1) };
 
 	WriteConsoleOutput(handleConsole, screenArray, currentWindowSize, { 0, 0 }, &rect);
 }
