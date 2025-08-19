@@ -26,9 +26,6 @@ void FrameCreator::DrawObject(const IDrawableObject& obj) {
 			SHORT color = texture[y][x];
 			if (color) {
 				auto X = position.X + static_cast<short>(x), Y = position.Y + static_cast<short>(y);
-				if (X >= frameSize.X || Y >= frameSize.Y * 2 || X < 0 || Y < 0) {
-					continue;
-				}
 				DrawPixel(X, Y, color);
 			}
 		}
@@ -83,6 +80,9 @@ COORD FrameCreator::GetFrameSize() {
 
 
 void FrameCreator::DrawPixel(short X, short Y, SHORT color) {
+	if (X >= frameSize.X || Y >= frameSize.Y * 2 || X < 0 || Y < 0) {
+		return;
+	}
 	WORD* currentColor = &charInfoArray[frameSize.X * (Y >> 1) + X].Attributes;
 
 	if (Y % 2 == 0) {
