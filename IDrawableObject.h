@@ -1,5 +1,4 @@
-#ifndef IDRAWABLEOBJECT_H
-#define IDRAWABLEOBJECT_H
+#pragma once
 
 #include <vector>
 #include <Windows.h>
@@ -14,5 +13,3 @@ public:
     // Возвращает координаты текстуры
     virtual COORD GetPosition() const = 0;
 };
-
-#endif
