@@ -86,10 +86,10 @@ void FrameCreator::DrawPixel(short X, short Y, SHORT color) {
 	WORD* currentColor = &charInfoArray[frameSize.X * (Y >> 1) + X].Attributes;
 
 	if (Y % 2 == 0) {
-		*currentColor = *currentColor | color;
+		*currentColor = *currentColor & 0b11110000 | color;
 	}
 	else {
-		*currentColor = *currentColor | color << 4;
+		*currentColor = *currentColor & 0b00001111 | color << 4;
 
 	}
 }
