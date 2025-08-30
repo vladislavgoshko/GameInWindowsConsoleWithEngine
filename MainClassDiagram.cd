@@ -10,12 +10,12 @@
   <Class Name="GameObject">
     <Position X="10.5" Y="0.5" Width="1.5" />
     <TypeIdentifier>
-      <HashCode>ABAAAAAAAAAAAAAAAAAAAIAAAABEAAAAAACAAAIBBAA=</HashCode>
+      <HashCode>ABAAAAAAAAAAAAAAAAAAAIAAAABEAAAAAACAAAIABAA=</HashCode>
       <FileName>GameObject.h</FileName>
     </TypeIdentifier>
   </Class>
   <Class Name="Player">
-    <Position X="10.5" Y="3.75" Width="1.5" />
+    <Position X="9.25" Y="3.75" Width="1.5" />
     <TypeIdentifier>
       <HashCode>AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAgQAAABg=</HashCode>
       <FileName>Player.h</FileName>
@@ -73,8 +73,15 @@
   <Class Name="FrameCreator">
     <Position X="2.5" Y="0.5" Width="1.5" />
     <TypeIdentifier>
-      <HashCode>AAAAEABAAAAAAAAAAAAAABEEAgIAAAAAAAkAAAAAAAA=</HashCode>
+      <HashCode>AAAAEABAAAAAAAAAAAAAABEEAgIAAAAAAAkAAAMAAAA=</HashCode>
       <FileName>FrameCreator.h</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="DrawableGameObject">
+    <Position X="11.25" Y="3.75" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAACACAAAAAAAAAAIAAAAAAAAgAAAAAAAAAAEAA=</HashCode>
+      <FileName>DrawableGameObject.h</FileName>
     </TypeIdentifier>
   </Class>
   <Struct Name="ColorRGB">
