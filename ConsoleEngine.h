@@ -2,14 +2,8 @@
 
 #define _WINSOCKAPI_ // Prevent winsock.h
 #include <Windows.h>
-#include <chrono>
 #include <vector>
-#include <iostream>
-#include <sstream>
-#include <cstdlib>
-#include <ctime>
-
-
+#include <string>
 
 struct ColorRGB {
     DWORD Red, Green, Blue;
@@ -26,8 +20,9 @@ public:
 
     bool IsFullcreen = false;
 
+    HANDLE handleConsoleOut; // бепмсрэ б PRIVATE!!!
+    HANDLE handleConsoleIn;
 private:
-    HANDLE handleConsole;
     
     // For getting console info
     CONSOLE_SCREEN_BUFFER_INFOEX info;

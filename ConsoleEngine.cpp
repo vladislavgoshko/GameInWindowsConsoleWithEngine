@@ -1,14 +1,29 @@
 ﻿#include "ConsoleEngine.h"
-
+#include <iostream>
 
 ConsoleEngine::ConsoleEngine() {
-	handleConsole = CreateConsoleScreenBuffer(GENERIC_READ | GENERIC_WRITE,
+	handleConsoleOut = CreateConsoleScreenBuffer(GENERIC_READ | GENERIC_WRITE,
 		0, NULL, CONSOLE_TEXTMODE_BUFFER, NULL);
-	SetConsoleActiveScreenBuffer(handleConsole);
+	handleConsoleIn = GetStdHandle(STD_INPUT_HANDLE);
 
-	GetConsoleScreenBufferInfoEx(handleConsole, &info);
+	if (handleConsoleIn == INVALID_HANDLE_VALUE) {
+		OutputDebugStringA("Failed to get console input handle.");
+	}
+
+	SetConsoleActiveScreenBuffer(handleConsoleOut);
+
+	GetConsoleScreenBufferInfoEx(handleConsoleOut, &info);
 	info.cbSize = sizeof(CONSOLE_SCREEN_BUFFER_INFOEX);
-	GetConsoleScreenBufferInfoEx(handleConsole, &info);
+	GetConsoleScreenBufferInfoEx(handleConsoleOut, &info);
+
+	DWORD prevMode;
+	if (!GetConsoleMode(handleConsoleIn, &prevMode)) {
+		OutputDebugStringA("Failed to get current console mode.");
+	}
+
+	if (!SetConsoleMode(handleConsoleIn, ENABLE_MOUSE_INPUT | ENABLE_EXTENDED_FLAGS)) {
+		OutputDebugStringA("Failed to set console mode.");
+	}
 
 	COORD currentWindowSize = info.dwSize;
 
@@ -25,7 +40,7 @@ void ConsoleEngine::Draw(const CHAR_INFO* screenArray) {
 	rect = { 0, 0, (short)(currentWindowSize.X - 1), (short)(currentWindowSize.Y - 1) };
 
 	try {
-		WriteConsoleOutput(handleConsole, screenArray, currentWindowSize, { 0, 0 }, &rect);
+		WriteConsoleOutput(handleConsoleOut, screenArray, currentWindowSize, { 0, 0 }, &rect);
 	}
 	catch (...) {
 	}
@@ -37,7 +52,7 @@ void ConsoleEngine::ChangeTitle(std::string title) {
 }
 
 COORD ConsoleEngine::GetWindowSize() {
-	GetConsoleScreenBufferInfoEx(handleConsole, &info);
+	GetConsoleScreenBufferInfoEx(handleConsoleOut, &info);
 	return info.dwSize;
 }
 
@@ -51,7 +66,7 @@ void ConsoleEngine::SetColorPallete(std::vector<ColorRGB> colors) {
 		info.ColorTable[i] = RGB(colors[i].Red, colors[i].Green, colors[i].Blue);
 	}
 
-	SetConsoleScreenBufferInfoEx(handleConsole, &info); // для применения изменений, например, палитры цветов
+	SetConsoleScreenBufferInfoEx(handleConsoleOut, &info); // для применения изменений, например, палитры цветов
 
 }
 
@@ -84,9 +99,9 @@ void ConsoleEngine::SimulateF11KeyPress() {
 bool ConsoleEngine::isFullScreen()
 {
 	CONSOLE_SCREEN_BUFFER_INFOEX info1, info2;
-	GetConsoleScreenBufferInfoEx(handleConsole, &info1);
+	GetConsoleScreenBufferInfoEx(handleConsoleOut, &info1);
 	SimulateF11KeyPress();
-	GetConsoleScreenBufferInfoEx(handleConsole, &info2);
+	GetConsoleScreenBufferInfoEx(handleConsoleOut, &info2);
 	SimulateF11KeyPress();
 	if (info1.dwSize.X < info2.dwSize.X || info1.dwSize.Y < info2.dwSize.Y) {
 		return true;
