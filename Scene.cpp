@@ -1,5 +1,5 @@
-#include "Scene.h"
 #include "GameObject.h"
+#include "Scene.h"
 //#include <algorithm>
 #include <sstream>
 #include <Windows.h>

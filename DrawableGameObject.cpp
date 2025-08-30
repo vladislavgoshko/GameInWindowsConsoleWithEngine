@@ -1,3 +1,4 @@
+#include "IDrawableObject.h"
 #include "DrawableGameObject.h"
 
 DrawableGameObject::DrawableGameObject(std::string name, COORD position, std::vector<std::vector<SHORT>> texture)

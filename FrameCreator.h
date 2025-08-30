@@ -1,8 +1,10 @@
 #pragma once
 #include "IDrawableObject.h"
+//class IDrawableObject;
+#include <Windows.h>
 #include <string>
 #include <vector>
-#include <numeric>
+
 
 #define UPPER_HALF_SYMBOL 9600
 #define LOWER_HALF_SYMBOL 9604

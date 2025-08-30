@@ -1,5 +1,4 @@
-#ifndef IUPDATABLE_H
-#define IUPDATABLE_H
+#pragma once
 
 class IUpdatable {
 public:
@@ -11,5 +10,3 @@ public:
     // Метод для фиксированных обновлений, вызывается с постоянным интервалом времени
     virtual void FixedUpdate(float fixedDeltaTime) = 0;
 };
-
-#endif

@@ -1,5 +1,4 @@
-#ifndef SCENE_H
-#define SCENE_H
+#pragma once
 
 #include <vector>
 #include <string>
@@ -19,5 +18,3 @@ private:
     std::string name;
     std::vector<GameObject*> gameObjects; // Указатели на объекты (не владение)
 };
-
-#endif

@@ -3,7 +3,7 @@
 #include <sstream>
 #include <Windows.h>
 
-GameObject::GameObject(const std::string& name) : name(name), largeData(10000000, 42) {}
+GameObject::GameObject(const std::string& name) : name(name) {}
 
 GameObject::~GameObject() {
     std::stringstream ss;

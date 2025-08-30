@@ -1,4 +1,6 @@
 #include "KeyboardInputController.h"
+#define _WINSOCKAPI_ // Prevent winsock.h
+#include <Windows.h>
 
 KeyboardInputController::KeyboardInputController() {
     // »нициализируем начальное состо€ние клавиш

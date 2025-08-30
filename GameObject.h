@@ -1,7 +1,7 @@
 #pragma once
 
 #include <string>
-#include <vector>
+
 class Scene;
 
 class GameObject {
@@ -13,12 +13,11 @@ public:
 
     const std::string& GetName() const { return name; }
 
-    void SetScene(Scene* scene); // Сделан публичным для удобства ручной привязки
+    void SetScene(Scene* scene);
 
 protected:
     Scene* scene = nullptr;
 
 private:
     std::string name;
-    std::vector<int> largeData; // Большой массив данных
 };

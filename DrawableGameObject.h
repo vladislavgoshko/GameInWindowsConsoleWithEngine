@@ -1,6 +1,11 @@
 #pragma once
 #include "GameObject.h"
-#include "IDrawableObject.h"
+class IDrawableObject;
+
+#include <Windows.h>
+#include <string>
+#include <vector>
+
 
 class DrawableGameObject : public GameObject, public IDrawableObject {
 public:

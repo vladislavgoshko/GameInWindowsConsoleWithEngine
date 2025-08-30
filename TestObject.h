@@ -6,8 +6,9 @@
 #include <windows.h> // Для COORD
 #include "IDrawableObject.h"
 #include "IUpdatable.h"
-#include "KeyboardInputController.h"
-#include "ConsoleEngine.h"
+
+class KeyboardInputController;
+class ConsoleEngine;
 
 
 class TestObject : public IDrawableObject, public IUpdatable {
@@ -17,7 +18,7 @@ private:
     KeyboardInputController* inputController;
     float speed; // Скорость игрока
     ConsoleEngine* ce;
-    std::chrono::system_clock::time_point lastMoveTP = std::chrono::system_clock::now();
+    std::chrono::system_clock::time_point lastMoveTP;
 
 public:
     // Конструктор

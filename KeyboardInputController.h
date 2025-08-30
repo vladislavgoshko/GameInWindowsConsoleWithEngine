@@ -1,8 +1,4 @@
-#ifndef KEYBOARDINPUTCONTROLLER_H
-#define KEYBOARDINPUTCONTROLLER_H
-
-#define _WINSOCKAPI_ // Prevent winsock.h
-#include <Windows.h>
+#pragma once
 #include <unordered_map>
 
 class KeyboardInputController {
@@ -25,5 +21,3 @@ private:
     std::unordered_map<int, bool> currentKeyState; // Текущее состояние клавиш
     std::unordered_map<int, bool> previousKeyState; // Предыдущее состояние клавиш
 };
-
-#endif
