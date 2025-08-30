@@ -1,8 +1,10 @@
 #include "FrameCreator.h"
+//#include "IDrawableObject.h"
+#include <numeric>
 
-FrameCreator::FrameCreator(COORD frameSize) : frameSize(frameSize),
+FrameCreator::FrameCreator(COORD windowSize) : windowSize(windowSize),
 colorPalette(16),
-charInfoArray(frameSize.X* frameSize.Y)
+charInfoArray(windowSize.X* windowSize.Y)
 {
 	// Заполняем палитру числами 0..15
 	std::iota(colorPalette.begin(), colorPalette.end(), 0);
@@ -24,20 +26,20 @@ void FrameCreator::DrawObject(const IDrawableObject& obj) {
 	for (size_t y = 0; y < texture.size(); ++y) {
 		for (size_t x = 0; x < texture[y].size(); ++x) {
 			SHORT color = texture[y][x];
-			if (color) {
-				auto X = position.X + static_cast<short>(x), Y = position.Y + static_cast<short>(y);
-				DrawPixel(X, Y, color);
+			if (color >= 0) {
+				auto frameX = position.X + static_cast<short>(x), frameY = position.Y + static_cast<short>(y);
+				DrawPixel(frameX, frameY, color);
 			}
 		}
 	}
 }
 
-void FrameCreator::WriteText(COORD coords, std::string text, int textColor, int bgColor) {
+void FrameCreator::WriteText(COORD windowPosition, std::string text, int textColor, int bgColor) {
 	// Преобразуем std::string в std::wstring
 	std::wstring wtext(text.begin(), text.end());
 
 	// Проверяем выход за границы экрана
-	if (coords.Y < 0 || coords.Y >= frameSize.Y || coords.X < 0 || coords.X >= frameSize.X) {
+	if (windowPosition.Y < 0 || windowPosition.Y >= windowSize.Y || windowPosition.X < 0 || windowPosition.X >= windowSize.X) {
 		return; // Если координаты за границей экрана, ничего не делаем
 	}
 
@@ -46,12 +48,12 @@ void FrameCreator::WriteText(COORD coords, std::string text, int textColor, int 
 
 	// Записываем текст в screenBuffer и устанавливаем цвет в consoleColorBuffer
 	for (size_t i = 0; i < wtext.size(); ++i) {
-		short x = coords.X + static_cast<short>(i); // Координата X текущего символа
-		if (x >= frameSize.X) {
+		short x = windowPosition.X + static_cast<short>(i); // Координата X текущего символа
+		if (x >= windowSize.X) {
 			break; // Прекращаем запись, если строка выходит за пределы экрана
 		}
-		charInfoArray[coords.Y * frameSize.X + x].Char.UnicodeChar = wtext[i]; // Запись символа
-		charInfoArray[coords.Y * frameSize.X + x].Attributes = color;
+		charInfoArray[windowPosition.Y * windowSize.X + x].Char.UnicodeChar = wtext[i]; // Запись символа
+		charInfoArray[windowPosition.Y * windowSize.X + x].Attributes = color;
 		//FillConsoleOutputAttribute(handleConsole, color, 1, { x, coords.Y }, &lpNumberOfCharsWritten); // Установка цвета
 	}
 }
@@ -64,9 +66,9 @@ void FrameCreator::ClearFrame() {
 	std::fill(charInfoArray.begin(), charInfoArray.end(), clearChar);
 }
 
-void FrameCreator::Resize(COORD newSize) {
-	charInfoArray.resize(newSize.X * newSize.Y);
-	frameSize = newSize;
+void FrameCreator::Resize(COORD newWindowSize) {
+	charInfoArray.resize(newWindowSize.X * newWindowSize.Y);
+	windowSize = newWindowSize;
 	ClearFrame();
 }
 
@@ -74,18 +76,18 @@ std::vector<CHAR_INFO> FrameCreator::GetFrame() {
 	return charInfoArray;
 }
 
-COORD FrameCreator::GetFrameSize() {
-	return frameSize;
+COORD FrameCreator::GetWindowSize() {
+	return windowSize;
 }
 
 
-void FrameCreator::DrawPixel(short X, short Y, SHORT color) {
-	if (X >= frameSize.X || Y >= frameSize.Y * 2 || X < 0 || Y < 0) {
+void FrameCreator::DrawPixel(short frameX, short frameY, SHORT color) {
+	if (frameX >= windowSize.X || frameY >= windowSize.Y * 2 || frameX < 0 || frameY < 0) {
 		return;
 	}
-	WORD* currentColor = &charInfoArray[frameSize.X * (Y >> 1) + X].Attributes;
+	WORD* currentColor = &charInfoArray[windowSize.X * (frameY >> 1) + frameX].Attributes;
 
-	if (Y % 2 == 0) {
+	if (frameY % 2 == 0) {
 		*currentColor = *currentColor & 0b11110000 | color;
 	}
 	else {

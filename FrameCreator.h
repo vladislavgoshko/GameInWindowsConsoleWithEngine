@@ -17,11 +17,11 @@ public:
 	void ClearFrame();
 	void Resize(COORD frameSize);
 	std::vector<CHAR_INFO> GetFrame();
-	COORD GetFrameSize();
+	COORD GetWindowSize();
 
 private:
 
 	std::vector<CHAR_INFO> charInfoArray;
-	COORD frameSize;
+	COORD windowSize;
 	std::vector<WORD> colorPalette = std::vector<WORD>(16);
 };
