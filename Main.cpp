@@ -102,7 +102,8 @@ int main()
 
 	std::stringstream debugInfo;
 
-	std::chrono::duration<float> deltaTime = std::chrono::system_clock::now() - frameTimeRegulationTimePoint;
+	auto lastFrameTime = std::chrono::system_clock::now();
+	std::chrono::duration<float> deltaTime = std::chrono::duration<float>(0);
 
 	FPSMeter fpsMeter;
 
@@ -124,12 +125,11 @@ int main()
     objects.push_back(wall);
 
 	while (true) {
-		//fps = fpsMeter.Update();
-		deltaTime = std::chrono::system_clock::now() - frameTimeRegulationTimePoint;
+		auto now = std::chrono::system_clock::now();
+		deltaTime = now - lastFrameTime;
+		lastFrameTime = now;
 
-
-		frameCreator.WriteText({ 3, 2 }, "MENU", 0, 4);
-		frameCreator.WriteText({ 3, 4 }, "Start");
+		
 		//ce.WriteText({ 3, 5 }, "Settings");
 		//ce.WriteText({ 3, 6 }, "Exit");
 
@@ -144,6 +144,8 @@ int main()
 			;
 
 		// UPDATE
+		physics.Update(deltaTime.count());
+
 		inputController.Update();
 		for (auto obj : objects) {
 			// Приводим объект к IUpdatable* и вызываем Update
@@ -162,7 +164,7 @@ int main()
 		//physics.Update(deltaTime.count());
 
 		// FIXED UPDATE
-		if (deltaTime > std::chrono::duration<float>(frameTime)) {
+		if (now - frameTimeRegulationTimePoint > std::chrono::duration<float>(frameTime)) {
 			frameTimeRegulationTimePoint = std::chrono::system_clock::now();
 
 			for (auto obj : objects) {
@@ -174,7 +176,6 @@ int main()
 				bullet->FixedUpdate(frameTime);
 			}
 		}
-		physics.Update(deltaTime.count());
 
 		windowSize = ce.GetWindowSize();
 		COORD frameSize = frameCreator.GetWindowSize();
@@ -247,7 +248,8 @@ int main()
 		//	else
 		//		OutputDebugStringA("Click in LOWER half of char\n");
 		//}
-
+		frameCreator.WriteText({ 3, 2 }, "MENU", 0, 4);
+		frameCreator.WriteText({ 3, 4 }, "Start");
 		ce.Draw(frameCreator.GetFrame().data());
 		//frameCreator.ClearFrame();
 
