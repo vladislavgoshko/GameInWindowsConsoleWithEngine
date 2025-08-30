@@ -28,21 +28,6 @@ inline bool operator!=(const COORD& lhs, const COORD& rhs) {
 	return !(lhs == rhs);
 }
 
-// Координаты вершин куба (3D)
-struct Vec3 {
-	float x, y, z;
-};
-
-// Проекция 3D в 2D
-COORD ProjectTo2D(const Vec3& v, int screenW, int screenH) {
-	float fov = 200.0f; // "приближение"
-	float z = v.z + 5.0f; // смещаем куб вперёд, чтобы не делить на ноль
-	return {
-		(short)(screenW / 2 + (v.x * fov) / z),
-		(short)(screenH / 2 + (v.y * fov) / z)
-	};
-}
-
 int main()
 {
 	OutputDebugStringA("START DEBUG\n");
@@ -92,7 +77,9 @@ int main()
 	std::vector<std::vector<SHORT>> backgroundTexture(1000, std::vector<SHORT>(300, 15));
 
 	Player player("Player", 100, 30, {20, 20}, playerTexture, &inputController);
+	PhysicsEngine physics;
 	player.SetBulletContainer(&bullets); // Связываем контейнер пуль с игроком
+	player.SetPhysicsEngine(&physics); // Связываем физику с игроком
 	DrawableGameObject background("Background", { 0, 0 }, backgroundTexture);
 	DrawableGameObject car("Car", { 24, 20 }, carTexture);
 	DrawableGameObject tree("Tree", { 20, 32 }, treeTexture);
@@ -119,24 +106,6 @@ int main()
 
 	FPSMeter fpsMeter;
 
-	float angle = 0.0f;
-
-	// В main():
-	std::vector<Vec3> cubeVertices = {
-		{-0.4f, -0.4f, -0.4f}, {0.4f, -0.4f, -0.4f}, {0.4f,  0.4f, -0.4f}, {-0.4f,  0.4f, -0.4f}, // задняя грань
-		{-0.4f, -0.4f,  0.4f}, {0.4f, -0.4f,  0.4f}, {0.4f,  0.4f,  0.4f}, {-0.4f,  0.4f,  0.4f}  // передняя грань
-	};
-
-	// Рёбра куба (индексы вершин)
-	std::vector<std::pair<int, int>> cubeEdges = {
-		{0,1},{1,2},{2,3},{3,0}, // задняя грань
-		{4,5},{5,6},{6,7},{7,4}, // передняя грань
-		{0,4},{1,5},{2,6},{3,7}  // соединение граней
-	};
-
-	INPUT_RECORD inputRecord;
-	DWORD eventsRead;
-	DWORD eventsAvailable = 0;
 	MouseInputController mouse(ce.handleConsoleIn); 
 
 
@@ -147,7 +116,6 @@ int main()
 	//audio.loadWav(L"KEYGEN CHURCH - La Chiave Del Mio Amor.wav", bg);
 	//audio.play(bg, true, 0.5f);
 
-	PhysicsEngine physics;
 	physics.AddObject(&player.rigidbody, &player.collider);
 	
     // --- Добавление стены ---
@@ -157,6 +125,7 @@ int main()
 
 	while (true) {
 		//fps = fpsMeter.Update();
+		deltaTime = std::chrono::system_clock::now() - frameTimeRegulationTimePoint;
 
 
 		frameCreator.WriteText({ 3, 2 }, "MENU", 0, 4);
@@ -187,6 +156,9 @@ int main()
 			bullet->Update(deltaTime.count());
 		}
 		// --- Физика ---
+		//for (auto bullet : bullets) {
+		//    physics.AddObject(&bullet->rigidbody, &bullet->collider, bullet);
+		//}
 		//physics.Update(deltaTime.count());
 
 		// FIXED UPDATE
@@ -201,10 +173,6 @@ int main()
 			for (auto bullet : bullets) {
 				bullet->FixedUpdate(frameTime);
 			}
-
-			
-
-			angle += 0.03f; // скорость вращения
 		}
 		physics.Update(deltaTime.count());
 
@@ -222,7 +190,8 @@ int main()
 		}
 		// Рисуем пули
 		for (auto it = bullets.begin(); it != bullets.end();) {
-			if ((*it)->IsOutOfBounds({ frameSize.X,  (SHORT)(frameSize.Y * 2) })) {
+			if ((*it)->IsOutOfBounds({ frameSize.X,  (SHORT)(frameSize.Y * 2) }) || (*it)->IsDestroyed()) {
+				physics.RemoveObject(*it); // Удаляем из PhysicsEngine
 				delete* it;
 				it = bullets.erase(it);
 			}
@@ -231,31 +200,7 @@ int main()
 				++it;
 			}
 		}
-		// РИСОВАНИЕ КУБА
-		// --- в цикле рисования ---
-		std::vector<COORD> projected;
-		projected.reserve(cubeVertices.size());
 
-		for (auto v : cubeVertices) {
-			// вращение вокруг Y
-			float x1 = v.x * cosf(angle) - v.z * sinf(angle);
-			float z1 = v.x * sinf(angle) + v.z * cosf(angle);
-			float y1 = v.y;
-
-			// вращение вокруг X
-			float y2 = y1 * cosf(angle * 0.7f) - z1 * sinf(angle * 0.7f);
-			float z2 = y1 * sinf(angle * 0.7f) + z1 * cosf(angle * 0.7f);
-
-			Vec3 rotated = { x1, y2, z2 };
-			projected.push_back(ProjectTo2D(rotated, windowSize.X, windowSize.Y));
-		}
-
-		// рисуем рёбра
-		for (size_t e = 0; e < cubeEdges.size(); e++) {
-			int i1 = cubeEdges[e].first;
-			int i2 = cubeEdges[e].second;
-			lineDrawer.DrawLine(projected[i1], projected[i2], 4);
-		}
 		frameCreator.WriteText({ 0, 0 }, debugInfo.str(), 0, 15);
 
 		
@@ -305,7 +250,6 @@ int main()
 
 		ce.Draw(frameCreator.GetFrame().data());
 		//frameCreator.ClearFrame();
-		deltaTime = std::chrono::system_clock::now() - frameTimeRegulationTimePoint;
 
 	}
 	return 0;
