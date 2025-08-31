@@ -18,6 +18,8 @@
 //#pragma comment(lib, "Winmm.lib")
 #define MINIAUDIO_IMPLEMENTATION
 #include "MiniWaveOutAudio.h"
+
+#include <iomanip>
 //#include <fstream>
 
 inline bool operator==(const COORD& lhs, const COORD& rhs) {
@@ -33,10 +35,16 @@ int main()
 	OutputDebugStringA("START DEBUG\n");
 
 	ConsoleEngine ce;
-	//NetworkManager nm;
+	// Палитра из 16 оттенков серого
+	std::vector<ColorRGB> grayPalette(16);
+	for (int i = 0; i < 16; ++i) {
+		BYTE gray = static_cast<BYTE>(i * 255 / 15);
+		grayPalette[i] = { gray, gray, gray };
+	}
+	ce.SetColorPallete(grayPalette);
 
 	KeyboardInputController inputController;
-
+	MouseInputController mouse(ce.handleConsoleIn);
 	std::vector<IDrawableObject*> objects;
 	std::vector<Bullet*> bullets; // Контейнер для пуль
 	TestObject obj1({ 40, 20 }, 40, &inputController, &ce);
@@ -80,6 +88,7 @@ int main()
 	PhysicsEngine physics;
 	player.SetBulletContainer(&bullets); // Связываем контейнер пуль с игроком
 	player.SetPhysicsEngine(&physics); // Связываем физику с игроком
+	player.SetMouseController(&mouse); // Связываем мышь с игроком
 	DrawableGameObject background("Background", { 0, 0 }, backgroundTexture);
 	DrawableGameObject car("Car", { 24, 20 }, carTexture);
 	DrawableGameObject tree("Tree", { 20, 32 }, treeTexture);
@@ -107,7 +116,7 @@ int main()
 
 	FPSMeter fpsMeter;
 
-	MouseInputController mouse(ce.handleConsoleIn); 
+	 
 
 
 	MiniAudio::Engine audio; // 44100 Hz, stereo
@@ -117,13 +126,14 @@ int main()
 	//audio.loadWav(L"KEYGEN CHURCH - La Chiave Del Mio Amor.wav", bg);
 	//audio.play(bg, true, 0.5f);
 
-	physics.AddObject(&player.rigidbody, &player.collider);
+	physics.AddObject(&player.rigidbody, &player.collider, &player, 1, 0b1000);
 	
     // --- Добавление стены ---
     Wall* wall = new Wall({50, 20}, {10, 5}, 8); // позиция (40,10), размер 10x5, цвет 8
-    physics.AddObject(nullptr, &wall->collider, wall); // стена статична, без Rigidbody
+    physics.AddObject(nullptr, &wall->collider, wall, 3, 0); // стена статична, без Rigidbody
     objects.push_back(wall);
-
+	ce.SwitchFullscreen(true);
+	
 	while (true) {
 		auto now = std::chrono::system_clock::now();
 		deltaTime = now - lastFrameTime;
@@ -135,7 +145,7 @@ int main()
 
 		debugInfo.str("");
 		auto windowSize = ce.GetWindowSize();
-
+		debugInfo << std::fixed << std::setprecision(2) << std::setw(4);
 		debugInfo << "Sizes(" << windowSize.X << "," << windowSize.Y << ") "
 			//<< deltaTime.count() 
 			//<< " " << frameTime 
@@ -202,8 +212,6 @@ int main()
 			}
 		}
 
-		frameCreator.WriteText({ 0, 0 }, debugInfo.str(), 0, 15);
-
 		
 	
 		mouse.Update();
@@ -211,33 +219,33 @@ int main()
 
 		// событие: нажата левая кнопка
 		if (state.leftEvent == MouseInputController::ButtonEventType::Hold) {
-			std::stringstream ss;
+			/*std::stringstream ss;
 			ss << "Left button PRESSED at X=" << state.position.X
 				<< " Y=" << state.position.Y << "\n";
-			OutputDebugStringA(ss.str().c_str());
+			OutputDebugStringA(ss.str().c_str());*/
 			frameCreator.DrawPixel(state.position.X, state.position.Y * 2, 10);
 		}
 
 		// событие: отпущена левая кнопка
-		if (state.leftEvent == MouseInputController::ButtonEventType::Released) {
+		/*if (state.leftEvent == MouseInputController::ButtonEventType::Released) {
 			std::stringstream ss;
 			ss << "Left button RELEASED at X=" << state.position.X
 				<< " Y=" << state.position.Y << "\n";
 			OutputDebugStringA(ss.str().c_str());
-		}
+		}*/
 
 		// колесо
-		if (mouse.IsWheelScrolledUp()) {
+		/*if (mouse.IsWheelScrolledUp()) {
 			OutputDebugStringA("Wheel UP\n");
 		}
 		if (mouse.IsWheelScrolledDown()) {
 			OutputDebugStringA("Wheel DOWN\n");
-		}
+		}*/
 
 		// двойной клик
-		if (mouse.IsDoubleClick()) {
+		/*if (mouse.IsDoubleClick()) {
 			OutputDebugStringA("Double click\n");
-		}
+		}*/
 
 		//if (mouse.IsLeftButtonPressed()) {
 		//	auto state = mouse.GetState();
@@ -250,8 +258,28 @@ int main()
 		//}
 		frameCreator.WriteText({ 3, 2 }, "MENU", 0, 4);
 		frameCreator.WriteText({ 3, 4 }, "Start");
+
+		POINT cursorPos;
+		GetCursorPos(&cursorPos);
+		debugInfo << " cursorPos(" << cursorPos.x << "," << cursorPos.y << ") ";
+		debugInfo << " charPos(" << state.position.X  << "," << state.position.Y << ") ";
+
+
+
+
+		frameCreator.WriteText({ 0, 0 }, debugInfo.str(), 0, 15);
+
+
 		ce.Draw(frameCreator.GetFrame().data());
 		//frameCreator.ClearFrame();
+		while (ce.GetWindowSize().X < 200) {
+			ce.DecreaseScale();
+			Sleep(100);
+		}
+		while (ce.GetWindowSize().X > 300) {
+			ce.IncreaseScale();
+			Sleep(100);
+		}
 
 	}
 	return 0;
