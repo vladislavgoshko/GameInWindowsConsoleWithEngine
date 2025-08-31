@@ -28,9 +28,11 @@ public:
         Rigidbody2D* rigidbody;
         BoxCollider2D* collider;
         void* userData; // pointer to game object
+        uint16_t layer = 0;
+        uint16_t collisionMask = 0xFFFF; // по умолчанию — со всеми
     };
 
-    void AddObject(Rigidbody2D* rb, BoxCollider2D* col, void* userData = nullptr);
+    void AddObject(Rigidbody2D* rb, BoxCollider2D* col, void* userData = nullptr, uint16_t layer = 0, uint16_t mask = 0xFFFF);
     void RemoveObject(void* userData); // Новый метод
     void Update(float deltaTime);
     void ResolveCollisions();

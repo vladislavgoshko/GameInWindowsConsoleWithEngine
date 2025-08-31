@@ -11,8 +11,8 @@
 #define max(a,b) (((a)>(b))?(a):(b))
 #endif
 
-void PhysicsEngine::AddObject(Rigidbody2D* rb, BoxCollider2D* col, void* userData) {
-    objects.push_back({rb, col, userData});
+void PhysicsEngine::AddObject(Rigidbody2D* rb, BoxCollider2D* col, void* userData, uint16_t layer, uint16_t mask) {
+    objects.push_back({ rb, col, userData, layer, mask });
 }
 
 void PhysicsEngine::Update(float deltaTime) {
@@ -31,6 +31,7 @@ void PhysicsEngine::ResolveCollisions() {
             auto& a = objects[i];
             auto& b = objects[j];
             if (!a.collider || !b.collider) continue;
+            if (!(a.collisionMask & (1 << b.layer)) && !(b.collisionMask & (1 << a.layer))) continue;
             if (CheckAABB(*a.collider, *b.collider)) {
                 // Если один из объектов - Bullet, уничтожаем пулю
                 Bullet* bulletA = dynamic_cast<Bullet*>(static_cast<IDrawableObject*>(a.userData));
