@@ -7,7 +7,7 @@ Bullet::Bullet(COORD pos, SHORT color, float speed)
     texture = {{color}};
     collider.position = Vector2(pos.X, pos.Y);
     collider.size = Vector2(1, 1); // маленький коллайдер
-    rigidbody.velocity = Vector2(0, -speed); // летит вверх
+    rigidbody.velocity = Vector2(0,0); // летит вверх
     rigidbody.mass = 0.1f;
     rigidbody.isStatic = false;
 }
@@ -38,6 +38,7 @@ bool Bullet::IsOutOfBounds(COORD screenSize) const {
 
 void Bullet::MarkDestroyed() {
     destroyed = true;
+    texture = { {5} };
 }
 
 bool Bullet::IsDestroyed() const {

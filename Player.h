@@ -10,6 +10,7 @@
 #include "Bullet.h"
 
 class KeyboardInputController;
+class MouseInputController; // Добавлено
 
 class Player : public GameObject, public IDrawableObject, public IUpdatable {
 public:
@@ -27,6 +28,7 @@ public:
     // Добавим метод для связи с пулевым контейнером
     void SetBulletContainer(std::vector<Bullet*>* bullets);
     void SetPhysicsEngine(PhysicsEngine* physics); // Добавлено
+    void SetMouseController(MouseInputController* mouse); // Добавлено
 
     // --- Физика ---
     Rigidbody2D rigidbody;
@@ -48,4 +50,5 @@ private:
     std::chrono::system_clock::time_point lastShotTP = std::chrono::system_clock::now();
     float fireCooldown = 0.1f; // seconds
     PhysicsEngine* physics = nullptr; // Добавлено
+    MouseInputController* mouseController = nullptr; // Добавлено
 };

@@ -4,6 +4,7 @@
 #include "KeyboardInputController.h"
 #include "Bullet.h"
 #include "PhysicsEngine.h"
+#include "MouseInputController.h"
 
 Player::Player(std::string name, int health, float speed, COORD position, std::vector<std::vector<SHORT>> texture, KeyboardInputController* inputController)
 	: GameObject(name), health(health), speed(speed), position(position), texture(texture), inputController(inputController) {
@@ -34,6 +35,10 @@ void Player::SetPhysicsEngine(PhysicsEngine* physics) {
     this->physics = physics;
 }
 
+void Player::SetMouseController(MouseInputController* mouse) {
+    mouseController = mouse;
+}
+
 void Player::Update(float deltaTime) {
 
 	auto currentTP = std::chrono::system_clock::now();
@@ -41,26 +46,26 @@ void Player::Update(float deltaTime) {
 	if (elapsedMoveTime.count() > 1.0f / speed) {
 	}
 	rigidbody.velocity = Vector2(0, 0);
-	if (inputController->IsKeyHeld(VK_UP) || inputController->IsKeyPressed(VK_UP)) {
+	if (inputController->IsKeyHeld('W') || inputController->IsKeyPressed('W')) {
 		//position.Y--;
 		//rigidbody.velocity += Vector2(0, -1);
 		rigidbody.velocity.y = -1 * speed;
 		lastMoveTP = std::chrono::system_clock::now();
 	}
-	if (inputController->IsKeyHeld(VK_DOWN) || inputController->IsKeyPressed(VK_DOWN)) {
+	if (inputController->IsKeyHeld('S') || inputController->IsKeyPressed('S')) {
 		//position.Y++;
 		//rigidbody.velocity += Vector2(0, 1);
 		rigidbody.velocity.y = 1 * speed;
 		lastMoveTP = std::chrono::system_clock::now();
 	}
-	if (inputController->IsKeyHeld(VK_LEFT) || inputController->IsKeyPressed(VK_LEFT)) {
+	if (inputController->IsKeyHeld('A') || inputController->IsKeyPressed('A')) {
 		//position.X--;
 		//collider.position.x -= 10;
 		//rigidbody.velocity += Vector2(-1, 0);
 		rigidbody.velocity.x = -1 * speed;
 		lastMoveTP = std::chrono::system_clock::now();
 	}
-	if (inputController->IsKeyHeld(VK_RIGHT) || inputController->IsKeyPressed(VK_RIGHT)) {
+	if (inputController->IsKeyHeld('D') || inputController->IsKeyPressed('D')) {
 		//position.X++;
 		//collider.position.x += 1;
 		//rigidbody.velocity += Vector2(1, 0);
@@ -69,20 +74,56 @@ void Player::Update(float deltaTime) {
 	}
 
 	// Стрельба
-	if (bullets && (inputController->IsKeyPressed(VK_SPACE)) || inputController->IsKeyHeld(VK_SPACE)) {
-		auto now = std::chrono::system_clock::now();
-		std::chrono::duration<float> elapsed = now - lastShotTP;
-		if (elapsed.count() > fireCooldown) {
-			audio.play(shot, false, 0.2f);
-			COORD bulletPos = position;
-			bulletPos.Y += 0;
-			bulletPos.X += 12;
-			Bullet* newBullet = new Bullet(bulletPos);
-			bullets->push_back(newBullet);
-			if (physics) {
-				physics->AddObject(&newBullet->rigidbody, &newBullet->collider, newBullet);
+	//if (bullets && (inputController->IsKeyPressed(VK_SPACE)) || inputController->IsKeyHeld(VK_SPACE)) {
+	//	auto now = std::chrono::system_clock::now();
+	//	std::chrono::duration<float> elapsed = now - lastShotTP;
+	//	if (elapsed.count() > fireCooldown) {
+	//		audio.play(shot, false, 0.2f);
+	//		COORD bulletPos = position;
+	//		bulletPos.Y += 0;
+	//		bulletPos.X += 12;
+	//		Bullet* newBullet = new Bullet(bulletPos);
+	//		bullets->push_back(newBullet);
+	//		if (physics) {
+	//			physics->AddObject(&newBullet->rigidbody, &newBullet->collider, newBullet);
+	//		}
+	//		lastShotTP = now;
+	//	}
+	//}
+	// Стрельба по ЛКМ
+	if (bullets && mouseController) {
+		auto state = mouseController->GetState();
+		if (state.leftEvent == MouseInputController::ButtonEventType::Pressed || state.leftEvent == MouseInputController::ButtonEventType::Hold) {
+			auto now = std::chrono::system_clock::now();
+			std::chrono::duration<float> elapsed = now - lastShotTP;
+			if (elapsed.count() > fireCooldown) {
+				audio.play(shot, false, 0.2f);
+				// Центр игрока
+				float px = collider.position.x + collider.size.x / 2.0f;
+				float py = collider.position.y + collider.size.y / 2.0f;
+				// Куда кликнули
+				float tx = state.position.X;
+				float ty = state.position.Y;
+				ty *= 2; // потому что координата мыши в текстовом режиме в два раза меньше по Y
+				// Вектор направления
+				float dx = tx - px;
+				float dy = ty - py;
+				
+				float len = sqrt(dx*dx + dy*dy);
+				if (len > 0.01f) {
+					dx /= len;
+					dy /= len;
+				}
+				float bulletSpeed = 80.0f;
+				COORD bulletPos = { (SHORT)px, (SHORT)py };
+				Bullet* newBullet = new Bullet(bulletPos);
+				newBullet->rigidbody.velocity = Vector2(dx * bulletSpeed, dy * bulletSpeed);
+				bullets->push_back(newBullet);
+				if (physics) {
+					physics->AddObject(&newBullet->rigidbody, &newBullet->collider, newBullet, 2, 0b1000);
+				}
+				lastShotTP = now;
 			}
-			lastShotTP = now;
 		}
 	}
 	SyncPhysicsToPosition();
