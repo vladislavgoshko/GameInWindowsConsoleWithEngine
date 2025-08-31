@@ -28,24 +28,22 @@ ConsoleEngine::ConsoleEngine() {
 	COORD currentWindowSize = info.dwSize;
 
 	rect = { 0, 0, (short)(currentWindowSize.X - 1), (short)(currentWindowSize.Y - 1) };
-	//IsFullcreen = isFullScreen();
+	
+
 }
-
-
-
 
 void ConsoleEngine::Draw(const CHAR_INFO* screenArray) {
 	auto currentWindowSize = GetWindowSize();
 
 	rect = { 0, 0, (short)(currentWindowSize.X - 1), (short)(currentWindowSize.Y - 1) };
-
-	try {
-		WriteConsoleOutput(handleConsoleOut, screenArray, currentWindowSize, { 0, 0 }, &rect);
-	}
-	catch (...) {
+	if (rect.Right != 0 && rect.Bottom != 0) {
+		try {
+			WriteConsoleOutput(handleConsoleOut, screenArray, currentWindowSize, { 0, 0 }, &rect);
+		}
+		catch (...) {
+		}
 	}
 }
-
 
 void ConsoleEngine::ChangeTitle(std::string title) {
 	std::cout << "\033]0;" << title << "\007";
@@ -55,7 +53,6 @@ COORD ConsoleEngine::GetWindowSize() {
 	GetConsoleScreenBufferInfoEx(handleConsoleOut, &info);
 	return info.dwSize;
 }
-
 
 void ConsoleEngine::SetColorPallete(std::vector<ColorRGB> colors) {
 	if (colors.size() != 16) {
@@ -67,44 +64,51 @@ void ConsoleEngine::SetColorPallete(std::vector<ColorRGB> colors) {
 	}
 
 	SetConsoleScreenBufferInfoEx(handleConsoleOut, &info); // для применения изменений, например, палитры цветов
-
 }
 
-
-void ConsoleEngine::SwitchFullscreen(bool enable) {
-	if (enable && !IsFullcreen) {
-		SimulateF11KeyPress();
-		IsFullcreen = true;
-	}
-	if (!enable && IsFullcreen) {
-		SimulateF11KeyPress();
-		IsFullcreen = false;
-	}
-}
-
-void ConsoleEngine::SimulateF11KeyPress() {
-	// Create an INPUT structure for the key press
-	INPUT input = { 0 };
-	input.type = INPUT_KEYBOARD;
-	input.ki.wVk = VK_F11; // Virtual key code for F11
-
-	// Simulate key press
-	SendInput(1, &input, sizeof(INPUT));
-
-	// Simulate key release
-	input.ki.dwFlags = KEYEVENTF_KEYUP;
-	SendInput(1, &input, sizeof(INPUT));
-}
-
-bool ConsoleEngine::isFullScreen()
-{
-	CONSOLE_SCREEN_BUFFER_INFOEX info1, info2;
-	GetConsoleScreenBufferInfoEx(handleConsoleOut, &info1);
-	SimulateF11KeyPress();
-	GetConsoleScreenBufferInfoEx(handleConsoleOut, &info2);
-	SimulateF11KeyPress();
-	if (info1.dwSize.X < info2.dwSize.X || info1.dwSize.Y < info2.dwSize.Y) {
-		return true;
+bool ConsoleEngine::IsFullscreen() const {
+	HWND hwnd = GetConsoleWindow();
+	WINDOWPLACEMENT placement = { sizeof(WINDOWPLACEMENT) };
+	if (GetWindowPlacement(hwnd, &placement)) {
+		return placement.showCmd == SW_SHOWMAXIMIZED;
 	}
 	return false;
+}
+
+void ConsoleEngine::SwitchFullscreen(bool enable) {
+	HWND hwnd = GetConsoleWindow();
+	if (enable) {
+		if (IsFullscreen()) return; // Уже в полноэкранном режиме
+		// Попытка эмулировать Alt+Enter (только для классической консоли)
+		keybd_event(VK_MENU, 0x38, 0, 0); // Alt down
+		keybd_event(VK_RETURN, 0x1C, 0, 0); // Enter down
+		keybd_event(VK_RETURN, 0x1C, KEYEVENTF_KEYUP, 0); // Enter up
+		keybd_event(VK_MENU, 0x38, KEYEVENTF_KEYUP, 0); // Alt up
+		// На новых терминалах fallback: просто максимизируем окно
+		ShowWindow(hwnd, SW_MAXIMIZE);
+	}
+	else {
+		if (!IsFullscreen()) return; // Уже не в полноэкранном режиме
+		// Повторно эмулируем Alt+Enter для выхода из fullscreen
+		keybd_event(VK_MENU, 0x38, 0, 0);
+		keybd_event(VK_RETURN, 0x1C, 0, 0);
+		keybd_event(VK_RETURN, 0x1C, KEYEVENTF_KEYUP, 0);
+		keybd_event(VK_MENU, 0x38, KEYEVENTF_KEYUP, 0);
+		ShowWindow(hwnd, SW_RESTORE);
+	}
+	IsFullcreen = enable;
+}
+
+void ConsoleEngine::IncreaseScale() {
+	keybd_event(VK_CONTROL, 0x1D, 0, 0); // Ctrl down
+	keybd_event(VK_OEM_PLUS, 0x0D, 0, 0); // '+' down
+	keybd_event(VK_OEM_PLUS, 0x0D, KEYEVENTF_KEYUP, 0); // '+' up
+	keybd_event(VK_CONTROL, 0x1D, KEYEVENTF_KEYUP, 0); // Ctrl up
+}
+
+void ConsoleEngine::DecreaseScale() {
+	keybd_event(VK_CONTROL, 0x1D, 0, 0); // Ctrl down
+	keybd_event(VK_OEM_MINUS, 0x0C, 0, 0); // '-' down
+	keybd_event(VK_OEM_MINUS, 0x0C, KEYEVENTF_KEYUP, 0); // '-' up
+	keybd_event(VK_CONTROL, 0x1D, KEYEVENTF_KEYUP, 0); // Ctrl up
 }

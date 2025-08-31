@@ -16,18 +16,16 @@ public:
     void ChangeTitle(std::string title);
     COORD GetWindowSize();
     void SwitchFullscreen(bool enable);
+    void IncreaseScale();
+    void DecreaseScale();
+    bool IsFullscreen() const;
     void SetColorPallete(std::vector<ColorRGB> colors); // Works only on old terminal
 
     bool IsFullcreen = false;
 
-    HANDLE handleConsoleOut; // бепмсрэ б PRIVATE!!!
+    HANDLE handleConsoleOut; // TODO: move to private
     HANDLE handleConsoleIn;
 private:
-    
-    // For getting console info
     CONSOLE_SCREEN_BUFFER_INFOEX info;
     SMALL_RECT rect;
-    
-    bool isFullScreen();
-    void SimulateF11KeyPress();
 };
