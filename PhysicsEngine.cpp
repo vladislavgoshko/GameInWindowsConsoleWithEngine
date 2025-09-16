@@ -59,6 +59,7 @@ void PhysicsEngine::ResolveCollisions() {
                             a.collider->position.x += overlapX;
                         }
                         a.rigidbody->velocity.x = 0;
+                        a.collider->position.x = roundf(a.collider->position.x);
                     } else if (b.rigidbody && !b.rigidbody->isStatic) {
                         if (b.rigidbody->velocity.x > 0) {
                             b.collider->position.x -= overlapX;
@@ -66,6 +67,8 @@ void PhysicsEngine::ResolveCollisions() {
                             b.collider->position.x += overlapX;
                         }
                         b.rigidbody->velocity.x = 0;
+                        b.collider->position.x = roundf(b.collider->position.x);
+
                     }
                 } else {
                     if (overlapY > epsilon) {
