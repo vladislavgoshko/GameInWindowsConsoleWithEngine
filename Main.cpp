@@ -116,7 +116,7 @@ int main()
 
 	FPSMeter fpsMeter;
 
-	 
+
 
 
 	MiniAudio::Engine audio; // 44100 Hz, stereo
@@ -127,19 +127,28 @@ int main()
 	//audio.play(bg, true, 0.5f);
 
 	physics.AddObject(&player.rigidbody, &player.collider, &player, 1, 0b1000);
-	
-    // --- Добавление стены ---
-    Wall* wall = new Wall({50, 20}, {10, 5}, 8); // позиция (40,10), размер 10x5, цвет 8
-    physics.AddObject(nullptr, &wall->collider, wall, 3, 0); // стена статична, без Rigidbody
-    objects.push_back(wall);
+
+	// --- Добавление стены ---
+	Wall* wall = new Wall({ 50, 20 }, { 20, 2 }, 8); // позиция (40,10), размер 10x5, цвет 8
+	Wall* wall1 = new Wall({ 70, 20 }, { 2, 20 }, 8); // позиция (40,10), размер 10x5, цвет 8
+	Wall* wall2 = new Wall({ 50, 40 }, { 20, 2 }, 8); // позиция (40,10), размер 10x5, цвет 8
+	Wall* wall3 = new Wall({ 30, 20 }, { 10, 5 }, 8); // позиция (40,10), размер 10x5, цвет 8
+	physics.AddObject(nullptr, &wall->collider, wall, 3, 0); // стена статична, без Rigidbody
+	physics.AddObject(nullptr, &wall1->collider, wall1, 3, 0); // стена статична, без Rigidbody
+	physics.AddObject(nullptr, &wall2->collider, wall2, 3, 0); // стена статична, без Rigidbody
+	physics.AddObject(nullptr, &wall3->collider, wall3, 3, 0); // стена статична, без Rigidbody
+	objects.push_back(wall);
+	objects.push_back(wall1);
+	objects.push_back(wall2);
+	objects.push_back(wall3);
 	ce.SwitchFullscreen(true);
-	
+
 	while (true) {
 		auto now = std::chrono::system_clock::now();
 		deltaTime = now - lastFrameTime;
 		lastFrameTime = now;
 
-		
+
 		//ce.WriteText({ 3, 5 }, "Settings");
 		//ce.WriteText({ 3, 6 }, "Exit");
 
@@ -212,8 +221,8 @@ int main()
 			}
 		}
 
-		
-	
+
+
 		mouse.Update();
 		auto state = mouse.GetState();
 
@@ -262,24 +271,28 @@ int main()
 		POINT cursorPos;
 		GetCursorPos(&cursorPos);
 		debugInfo << " cursorPos(" << cursorPos.x << "," << cursorPos.y << ") ";
-		debugInfo << " charPos(" << state.position.X  << "," << state.position.Y << ") ";
-
-
+		debugInfo << " charPos(" << state.position.X << "," << state.position.Y << ") ";
+		if (inputController.IsKeyPressed(27))
+			return 0;
 
 
 		frameCreator.WriteText({ 0, 0 }, debugInfo.str(), 0, 15);
 
+		try {
+			ce.Draw(frameCreator.GetFrame().data());
+		}
+		catch (...) {
 
-		ce.Draw(frameCreator.GetFrame().data());
+		}
 		//frameCreator.ClearFrame();
-		while (ce.GetWindowSize().X < 200) {
+		/*while (ce.GetWindowSize().X < 200) {
 			ce.DecreaseScale();
 			Sleep(100);
 		}
 		while (ce.GetWindowSize().X > 300) {
 			ce.IncreaseScale();
 			Sleep(100);
-		}
+		}*/
 
 	}
 	return 0;
