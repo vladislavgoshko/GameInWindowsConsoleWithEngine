@@ -28,7 +28,7 @@ ConsoleEngine::ConsoleEngine() {
 	COORD currentWindowSize = info.dwSize;
 
 	rect = { 0, 0, (short)(currentWindowSize.X - 1), (short)(currentWindowSize.Y - 1) };
-	
+
 
 }
 
@@ -36,13 +36,10 @@ void ConsoleEngine::Draw(const CHAR_INFO* screenArray) {
 	auto currentWindowSize = GetWindowSize();
 
 	rect = { 0, 0, (short)(currentWindowSize.X - 1), (short)(currentWindowSize.Y - 1) };
-	if (rect.Right != 0 && rect.Bottom != 0) {
-		try {
-			WriteConsoleOutput(handleConsoleOut, screenArray, currentWindowSize, { 0, 0 }, &rect);
-		}
-		catch (...) {
-		}
+	if (currentWindowSize.X > 0 && currentWindowSize.Y > 0 && rect.Right > 0 && rect.Bottom > 0) {
+		WriteConsoleOutput(handleConsoleOut, screenArray, currentWindowSize, { 0, 0 }, &rect);
 	}
+
 }
 
 void ConsoleEngine::ChangeTitle(std::string title) {
