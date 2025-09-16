@@ -18,7 +18,7 @@ public:
 	void WriteText(COORD coords, std::string text, int textColor = 0, int bgColor = 15);
 	void ClearFrame();
 	void Resize(COORD frameSize);
-	std::vector<CHAR_INFO> GetFrame();
+	const std::vector<CHAR_INFO>& GetFrame() const;
 	COORD GetWindowSize();
 
 private:

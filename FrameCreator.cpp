@@ -72,7 +72,7 @@ void FrameCreator::Resize(COORD newWindowSize) {
 	ClearFrame();
 }
 
-std::vector<CHAR_INFO> FrameCreator::GetFrame() {
+const std::vector<CHAR_INFO>& FrameCreator::GetFrame() const {
 	return charInfoArray;
 }
 
