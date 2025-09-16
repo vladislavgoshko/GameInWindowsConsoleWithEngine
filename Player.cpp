@@ -9,7 +9,7 @@
 Player::Player(std::string name, int health, float speed, COORD position, std::vector<std::vector<SHORT>> texture, KeyboardInputController* inputController)
 	: GameObject(name), health(health), speed(speed), position(position), texture(texture), inputController(inputController) {
 
-	audio.loadWav(L"Untitled video - Made with Clipchamp.wav", shot);
+	audio.loadWav(L"shot.wav", shot);
 
 	collider.position = Vector2(position.X, position.Y);
 	collider.size = Vector2(10, 15); // Пример размера (ширина, высота)
