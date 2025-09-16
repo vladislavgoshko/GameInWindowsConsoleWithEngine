@@ -114,7 +114,7 @@ void Player::Update(float deltaTime) {
 					dx /= len;
 					dy /= len;
 				}
-				float bulletSpeed = 80.0f;
+				float bulletSpeed = 500.0f;
 				COORD bulletPos = { (SHORT)px, (SHORT)py };
 				Bullet* newBullet = new Bullet(bulletPos);
 				newBullet->rigidbody.velocity = Vector2(dx * bulletSpeed, dy * bulletSpeed);
