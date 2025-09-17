@@ -1,0 +1,7 @@
+<Solution>
+  <Configurations>
+    <Platform Name="x64" />
+    <Platform Name="x86" />
+  </Configurations>
+  <Project Path="TermGame/TermGame.vcxproj" Id="bc43d216-5a43-467d-acae-e45e9c39bd86" />
+</Solution>
